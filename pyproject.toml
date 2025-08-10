@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["snake"]
+py-modules = ["myAI"]
+
+[project]
+name = "snake-ai"
+version = "0.1.0"
+requires-python = ">=3.9"
+dependencies = [
+    "pyyaml>=6.0.3",
+    "raylib>=5.5.0.3",
+    "tqdm>=4.67.1",
+]
+
+[project.scripts]
+snake = "snake.snake:main"
