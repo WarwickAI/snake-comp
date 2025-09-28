@@ -17,9 +17,9 @@ class Direction(Enum):
 DIRECTIONS = [(0, -1), (1, 0), (0, 1), (-1, 0)]
 
 class Snake:
-    def __init__(self, x, y, direction_idx=1):
+    def __init__(self, x, y, direction=1):
         self.body = deque([(x, y)])
-        self.direction_idx = direction_idx
+        self.direction = direction
 
     @property
     def head(self):
@@ -30,13 +30,13 @@ class Snake:
         return set(self.body)
 
     def get_next_head(self, turn):
-        new_dir_idx = (self.direction_idx + turn.value) % 4
+        new_dir_idx = (self.direction + turn.value) % 4
         dx, dy = DIRECTIONS[new_dir_idx]
         return (self.head[0] + dx, self.head[1] + dy)
 
     def move(self, turn, grow=False):
-        self.direction_idx = (self.direction_idx + turn.value) % 4
-        dx, dy = DIRECTIONS[self.direction_idx]
+        self.direction = (self.direction + turn.value) % 4
+        dx, dy = DIRECTIONS[self.direction]
         new_head = (self.head[0] + dx, self.head[1] + dy)
 
         self.body.appendleft(new_head)
@@ -96,6 +96,7 @@ class SnakeGame:
 
         if will_eat:
             self.state.food.remove(next_head)
+            self.spawn_wall()
             self.state.score += 10
             self.spawn_food()
 
@@ -106,8 +107,10 @@ class SnakeGame:
         if empty:
             self.state.food.add(random.choice(list(empty)))
     
-    def spawn_wall(self, x, y):
-        self.state.walls.add((x, y))
+    def spawn_wall(self):
+        empty = self.get_empty_cells()
+        if empty:
+            self.state.walls.add(random.choice(list(empty)))
     
     def get_empty_cells(self):
         all_cells = {(x, y) for x in range(self.width) for y in range(self.height)}
@@ -116,10 +119,7 @@ class SnakeGame:
 
 if __name__ == "__main__":
     game = SnakeGame(15, 10)
-    
-    for i in range(5):
-        game.spawn_wall(7, i)
-    
+        
     moves = [Turn.STRAIGHT] * 3 + [Turn.RIGHT] + [Turn.STRAIGHT] * 2
     
     for move in moves:
