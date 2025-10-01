@@ -58,7 +58,7 @@ class SnakeGame:
         self.width = width
         self.height = height
         self.state = None
-        self.reset()
+        self.reset() # in case people dont!
 
     def reset(self):
         snake = Snake(self.width // 2, self.height // 2)
@@ -96,9 +96,10 @@ class SnakeGame:
 
         if will_eat:
             self.state.food.remove(next_head)
-            self.spawn_wall()
-            self.state.score += 10
             self.spawn_food()
+            self.state.score += 1
+            
+            self.spawn_wall()
 
         return True
 
@@ -116,15 +117,20 @@ class SnakeGame:
         all_cells = {(x, y) for x in range(self.width) for y in range(self.height)}
         occupied = self.state.snake.body_set | self.state.walls | self.state.food
         return all_cells - occupied
-
-if __name__ == "__main__":
-    game = SnakeGame(15, 10)
+    
+    def render(self):
+        grid = [['.' for _ in range(self.width)] for _ in range(self.height)]
+        for (x, y) in self.state.walls:
+            grid[y][x] = '#'
+        for (x, y) in self.state.food:
+            grid[y][x] = '*'
+        for i, (x, y) in enumerate(self.state.snake.body):
+            grid[y][x] = 'O' if i == 0 else 'o'
         
-    moves = [Turn.STRAIGHT] * 3 + [Turn.RIGHT] + [Turn.STRAIGHT] * 2
-    
-    for move in moves:
-        game.render()
-        if not game.move(move):
-            break
-    
-    game.render()
+        top_border = '┌' + '─' * self.width + '┐'
+        bottom_border = '└' + '─' * self.width + '┘'
+        rows = [top_border]
+        rows.extend('│' + ''.join(row) + '│' for row in grid)
+        rows.append(bottom_border)
+        
+        print('\n'.join(rows))
