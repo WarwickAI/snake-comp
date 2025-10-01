@@ -1,4 +1,4 @@
-from snake.logic import SnakeGame, Turn
+from snake.logic import SnakeGame
 from snake.render import SnakeRenderer
 
 from myAI import myAI
