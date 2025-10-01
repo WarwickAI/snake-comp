@@ -96,13 +96,6 @@ class SnakeRenderer:
         if rl.window_should_close():
             return False
         
-        # Check for restart/quit keys
-        if rl.is_key_pressed(rl.KEY_R):
-            self.restart_requested = True
-        
-        if rl.is_key_pressed(rl.KEY_Q) or rl.is_key_pressed(rl.KEY_ESCAPE):
-            self.quit_requested = True
-        
         self._process_and_render()
         return True
     
@@ -143,6 +136,13 @@ class SnakeRenderer:
         if rl.window_should_close():
             self.close()
             return
+        
+        # Check for restart/quit keys on every frame
+        if rl.is_key_pressed(rl.KEY_R):
+            self.restart_requested = True
+        
+        if rl.is_key_pressed(rl.KEY_Q) or rl.is_key_pressed(rl.KEY_ESCAPE):
+            self.quit_requested = True
         
         # Get delta time
         dt = rl.get_frame_time()
