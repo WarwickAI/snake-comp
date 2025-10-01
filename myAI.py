@@ -1,11 +1,7 @@
-from snake.logic import SnakeGame, Turn
-from snake.render import SnakeRenderer
+from snake.logic import GameState, Turn
 import random
 
-game = SnakeGame(width=10, height=10)
-render = SnakeRenderer(moves_per_second=10)
-
-def simple_ai(state):
+def myAI(state: GameState) -> Turn:
     """
     Simple AI that:
     1. Avoids immediate death (walls, body, boundaries)
@@ -52,34 +48,3 @@ def simple_ai(state):
     
     # No food? Just pick a random safe move
     return random.choice(safe_moves)
-
-from snake.logic import SnakeGame, Turn
-from snake.render import SnakeRenderer
-import random
-
-game = SnakeGame(width=10, height=10)
-# moves_per_second controls game speed (independent of render FPS)
-render = SnakeRenderer(moves_per_second=10)
-
-while render.is_window_open():
-    if render.should_restart():
-        game.reset()
-        render.clear_buffer()
-    
-    if render.should_quit():
-        break
-    
-    if not game.state.game_over:        
-        # state to use for your AI
-        state = game.state
-        
-        # make a move
-        turn = simple_ai(state)
-        game.move(turn)
-        
-        # render the game
-        render.render(game.state)
-    else:
-        render.update()
-
-render.close()
