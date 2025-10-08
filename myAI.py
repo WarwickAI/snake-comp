@@ -39,7 +39,7 @@ def myAI(state: GameState) -> Turn:
     # =         Your Code Goes Here        =
     # ======================================
 
-    return random.choice(list(Turn))
+    #return random.choice(list(Turn))
 
     # ======================================
     # =       Try out some examples!       =
@@ -48,5 +48,5 @@ def myAI(state: GameState) -> Turn:
     # from examples.dumbAI import dumbAI
     # return dumbAI(state)
 
-    # from examples.smartAI import smartAI
-    # return smartAI(state)
+    from examples.smartAI import smartAI
+    return smartAI(state)

@@ -59,7 +59,7 @@ def test_all(n, DIFFICULTIES):
         print(f"  {diff:<12} {avg:.1f}")
 
     final_score = (
-        results["easy"] * 0.2 + results["medium"] * 0.3 + results["hard"] * 0.5
+        (results["easy"] + results["medium"] + results["hard"] + results["chaos"]) / 4
     )
     print("")
     print(f"  Average Score: {final_score:.1f}")
