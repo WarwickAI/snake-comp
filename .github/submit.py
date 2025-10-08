@@ -8,7 +8,7 @@ with open("snake/difficulties.yaml", "r") as f:
 
 DIFFICULTIES = CONFIG["difficulties"]
 
-random.seed()
+random.seed(0)
 
 results = test_all(1000, DIFFICULTIES)
 
