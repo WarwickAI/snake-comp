@@ -7,7 +7,7 @@
 ### 🎮 **Welcome to the first ever WAI AI Programming Competition!** 🎮
 
 [![Competition Status](https://img.shields.io/badge/Status-Active-brightgreen)](https://warwick.ai)
-[![Week](https://img.shields.io/badge/Deadline-Week%206%20Term%201-orange)](https://warwick.ai)
+[![Week](https://img.shields.io/badge/Deadline-Week%209%20Term%201-orange)](https://warwick.ai)
 [![Prize](https://img.shields.io/badge/Prize-£50%20Tesco%20Voucher-gold)](https://warwick.ai)
 
 </div>
