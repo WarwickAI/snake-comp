@@ -1,3 +1,4 @@
+import random
 import yaml
 
 from snake.snake import test_all
@@ -6,6 +7,8 @@ with open("snake/difficulties.yaml", "r") as f:
     CONFIG = yaml.safe_load(f)
 
 DIFFICULTIES = CONFIG["difficulties"]
+
+random.seed()
 
 results = test_all(1000, DIFFICULTIES)
 
