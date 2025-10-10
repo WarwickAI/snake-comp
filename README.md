@@ -42,23 +42,26 @@ Open source contributions are great practice and go an long way on a CV!
 
 ### Using the Template
 
+### 1️⃣ Step 1 - Login on our Website
 First, login on our website https://warwick.ai with your GitHub account!  Don't worry if you forget, logging in later won't break anything :)
 
-Next, use this template to create you own repository by pressing `Use this template`:      ⬇️
+### 2️⃣ Step 2 - Copy the Template
+Next, use this template repository to create you own by pressing `Use this template`:      ⬇️
 
 <img width="904" height="72" alt="template" src="https://github.com/user-attachments/assets/b05ccea8-bb53-4eed-ad5a-2de0b3a15b1d" />
 
-Then, go to https://github.com/apps/warwickai and press install and authorise the app to view your repository.
+This button is in the top right of the page. You will be prompted to give it a name and choose for it to be public/private. These setting are completely up to you and won't affect anything :)
+
+### 3️⃣ Step 3 - Enable the WAI GitHub App
+Then, go to https://github.com/apps/warwickai and press install/configure to authorise the app to view your repository.
+
+This is what allows us to send your score to the leaderboard!
 
 <img width="452" height="170" alt="ghapp" src="https://github.com/user-attachments/assets/952fad17-b664-457f-982b-50cb5e42896a" />
 
-With this done, submitting is as easy as pushing a commit to your repository!
+### 4️⃣ Step 4 - Installing Dependencies
+Open your project's repository in a terminal and install the required dependencies:
 
-If you don't have a development environment set up, an good alternative is making a github codespace:
-
-<img width="452" height="431" alt="codespaces" src="https://github.com/user-attachments/assets/750288fb-c6ad-4602-9f36-08f53f8eaed2" />
-
-### Installing Dependencies
 ```bash
 # Create virtual environment
 python -m venv .venv
@@ -69,6 +72,13 @@ source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 # Install dependencies
 pip install -e .
 ```
+
+With this done, submitting is as easy as pushing a commit to your repository!
+
+### Alternatives
+If you don't have a development environment set up, an alternative is making a github codespace:
+
+<img width="452" height="431" alt="codespaces" src="https://github.com/user-attachments/assets/750288fb-c6ad-4602-9f36-08f53f8eaed2" />
 
 ---
 
