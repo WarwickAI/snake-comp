@@ -54,9 +54,7 @@ Then, go to https://github.com/apps/warwickai and press install and authorise th
 
 With this done, submitting is as easy as pushing a commit to your repository!
 
-If you don't have a development environment set up, an good alternative is making a github codespace:
-
-<img width="452" height="431" alt="codespaces" src="https://github.com/user-attachments/assets/750288fb-c6ad-4602-9f36-08f53f8eaed2" />
+Please note, 'snake run' will not work from a github codespace, instead the code must be run locally.
 
 ### Installing Dependencies
 ```bash
