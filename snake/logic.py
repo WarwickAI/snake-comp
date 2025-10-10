@@ -109,8 +109,8 @@ class SnakeGame:
             enemies=[
                 s for s in self.snakes if s != self.snakes[snake_idx] and s.isAlive
             ],
-            food=self.food,
-            walls=self.walls,
+            food=self.food.copy(),
+            walls=self.walls.copy(),
             score=self.snakes[snake_idx].score,
         )
 
