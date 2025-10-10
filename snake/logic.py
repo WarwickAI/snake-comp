@@ -53,6 +53,14 @@ class Snake:
         self.body.appendleft(new_head)
         if not grow:
             self.body.pop()
+            
+    def copy(self):
+        copy = Snake(0, 0, self.id)
+        copy.score = self.score
+        copy.isAlive = self.isAlive
+        copy.body = self.body.copy()
+        copy.direction = self.direction
+        return copy
 
 
 # the state passed to the user for their AI
@@ -105,9 +113,9 @@ class SnakeGame:
         return GameState(
             width=self.width,
             height=self.height,
-            snake=self.snakes[snake_idx],
+            snake=self.snakes[snake_idx].copy(),
             enemies=[
-                s for s in self.snakes if s != self.snakes[snake_idx] and s.isAlive
+                s.copy() for s in self.snakes if s != self.snakes[snake_idx] and s.isAlive
             ],
             food=self.food.copy(),
             walls=self.walls.copy(),
