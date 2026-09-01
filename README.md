@@ -48,7 +48,7 @@ First, login on our website https://warwick.ai with your GitHub account!  Don't 
 ### 2️⃣ Step 2 - Copy the Template
 Next, use this template repository to create you own by pressing `Use this template`:      ⬇️
 
-<img width="904" height="72" alt="template" src="https://github.com/user-attachments/assets/b05ccea8-bb53-4eed-ad5a-2de0b3a15b1d" />
+<img alt="template" src="https://github.com/user-attachments/assets/b05ccea8-bb53-4eed-ad5a-2de0b3a15b1d" />
 
 This button is in the top right of the page. You will be prompted to give it a name and choose for it to be public/private. These setting are completely up to you and won't affect anything :)
 
