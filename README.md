@@ -105,6 +105,12 @@ snake test 100 medium
 snake test 50 all  # cycles through every difficulty
 ```
 
+#### 🤖 Train a reinforcement learning agent
+```bash
+snake train easy
+snake train easy --resume  # keep training the model you already have
+```
+
 #### 🎲 Deterministic testing
 ```bash
 snake run hard --seed 123
@@ -133,8 +139,55 @@ The turn you choose will make your snake turn left, right or stay straight befor
 There's all sorts of ways to write an AI for this competition:
 - Rules/heuristics
 - Search algorithms
-- Reinforcement learning
+- [Reinforcement learning](#-reinforcement-learning)
 - and much more!
+
+---
+
+## 🤖 Reinforcement Learning
+
+Rather than writing the rules yourself, you can train a snake to work them out. The project ships a [Gymnasium](https://gymnasium.farama.org/) environment and a [Stable Baselines 3](https://stable-baselines3.readthedocs.io/) training loop, so it's one extra command.
+
+Everything you edit is in **`myEnv.py`**: `observe`, `step`, `reset`, `observation_space` - a real Gymnasium environment. Leave the plumbing at the bottom alone. `play_turn()` moves the snakes exactly as the scorer does, and changing it means training against a different game to the one you're scored on.
+
+### 1️⃣ Install
+
+Uncomment these two lines in `pyproject.toml`, then re-run `pip install -e .`:
+
+```toml
+    # "gymnasium>=1.0",
+    # "stable-baselines3>=2.4",
+```
+
+> ⚠️ **Don't skip this.** The scorer installs whatever is in **your** `pyproject.toml`. Leave them commented and your trained snake won't run, so you won't get a score.
+
+### 2️⃣ Train
+
+```bash
+snake train easy
+```
+
+Watch **`ep_rew_mean`** in the table that prints — your average reward per game. Climbing means it's learning. The model saves to `model.zip`.
+
+```bash
+snake train easy --steps 50000  # ~5s smoke test (the snake will still be awful)
+snake train easy --resume       # keep training the model you already have
+```
+
+### 3️⃣ Play
+
+Uncomment the two `rlAI` lines in `myAI.py`:
+
+```python
+    from examples.rlAI import rlAI
+    return rlAI(state)
+```
+
+Then `snake run easy` to watch it and `snake test 100 easy` to score it.
+
+### 4️⃣ Submit
+
+Commit `model.zip` along with your code and push. It's scored like any other submission.
 
 ---
 

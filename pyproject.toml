@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
 packages = ["snake"]
-py-modules = ["myAI"]
+py-modules = ["myAI", "myEnv"]
 
 [project]
 name = "snake-ai"
@@ -14,6 +14,11 @@ dependencies = [
     "pyyaml>=6.0.3",
     "raylib>=5.5.0.3",
     "tqdm>=4.67.1",
+
+    # Uncomment these two to train a reinforcement learning agent.
+    # See the "Reinforcement Learning" section of the README.
+    # "gymnasium>=1.0",
+    # "stable-baselines3>=2.4",
 ]
 
 [project.scripts]

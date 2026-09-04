@@ -36,17 +36,25 @@ def myAI(state: GameState) -> Turn:
     right = my_snake.get_next_head(Turn.RIGHT)
 
     # ======================================
-    # =         Your Code Goes Here        =
-    # ======================================
-
-    return random.choice(list(Turn))
-
-    # ======================================
     # =       Try out some examples!       =
     # ======================================
+
+    # Uncomment a pair of lines to watch that AI play instead of your own.
+    # Python stops at the first `return` it reaches, so whatever you
+    # uncomment here runs instead of your code below.
 
     # from examples.dumbAI import dumbAI
     # return dumbAI(state)
 
-    #from examples.smartAI import smartAI
-    #return smartAI(state)
+    # from examples.smartAI import smartAI
+    # return smartAI(state)
+
+    # Trained a reinforcement learning agent? (see the README)
+    # from examples.rlAI import rlAI
+    # return rlAI(state)
+
+    # ======================================
+    # =         Your Code Goes Here        =
+    # ======================================
+
+    return random.choice(list(Turn))

@@ -42,6 +42,20 @@ def main():
     test_parser.add_argument("difficulty", nargs="?", default=DEFAULT)
     test_parser.add_argument("--seed", type=int)
 
+    # snake train [difficulty]
+    train_parser = subparsers.add_parser("train")
+    train_parser.add_argument("difficulty", nargs="?", default=DEFAULT)
+    train_parser.add_argument(
+        "--steps", type=int, default=1_000_000, help="how long to train for"
+    )
+    train_parser.add_argument(
+        "--envs", type=int, default=4, help="games to run in parallel"
+    )
+    train_parser.add_argument("--seed", type=int, help="for a repeatable run")
+    train_parser.add_argument(
+        "--resume", action="store_true", help="carry on training model.zip"
+    )
+
     # snake list
     subparsers.add_parser("list")
 
@@ -78,6 +92,26 @@ def main():
 
         else:
             test(args.n, args.difficulty, DIFFICULTIES)
+
+    # user has asked to train a reinforcement learning agent
+    elif args.command == "train":
+        if args.difficulty not in DIFFICULTIES:
+            print(f"Unknown difficulty: {args.difficulty}")
+            list_modes()
+            return
+
+        # imported here, not at the top, so snake run/test/list keep working
+        # for everyone who never installs the RL dependencies
+        from snake.train import train
+
+        train(
+            name=args.difficulty,
+            cfg=DIFFICULTIES[args.difficulty],
+            steps=args.steps,
+            n_envs=args.envs,
+            seed=args.seed,
+            resume=args.resume,
+        )
 
     # user has asked to list the difficulties
     elif args.command == "list":
