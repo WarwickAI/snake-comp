@@ -5,16 +5,23 @@ import copy
 
 
 class SnakeRenderer:
-    def __init__(self, cell_size=40, render_fps=60, moves_per_second=10):
+    def __init__(
+        self, cell_size=40, render_fps=60, moves_per_second=10, fullscreen=False
+    ):
         """
         Initialize the raylib renderer for Snake game with Google Snake theme and buffered smooth movement.
 
         Args:
-            cell_size: Size of each grid cell in pixels
+            cell_size: Size of each grid cell in pixels (ignored when fullscreen)
             render_fps: Target render frames per second
             moves_per_second: How many game moves to play per second
+            fullscreen: Fill the screen, sizing cells to fit and centring the board
         """
         self.cell_size = cell_size
+        self.fullscreen = fullscreen
+        # top-left corner of the board in window pixels
+        self.origin_x = 0
+        self.origin_y = 0
         self.render_fps = render_fps
         self.moves_per_second = moves_per_second
         self.move_duration = 1.0 / moves_per_second
@@ -34,6 +41,14 @@ class SnakeRenderer:
         # Restart handling
         self.restart_requested = False
 
+        # Optional message drawn over the board (used by interactive play)
+        self.message = None
+        self.message_corner = False
+
+        # Game over overlay settings (interactive play tweaks these)
+        self.show_game_over = True
+        self.game_over_hint = "Press R to restart"
+
         # Google Snake theme colors
         self.BG_BOARD = rl.Color(170, 215, 81, 255)  # Light green board
         self.BG_FRAME = rl.Color(87, 138, 52, 255)  # Dark green frame
@@ -49,19 +64,47 @@ class SnakeRenderer:
     def _init_window(self, width, height):
         """Initialize the raylib window (done on first render)"""
         if not self.window_initialized:
-            game_width = width * self.cell_size
-            game_height = height * self.cell_size
-            window_width = game_width + (self.padding * 2)
-            window_height = game_height + (self.padding * 2)
-
             rl.set_trace_log_level(rl.LOG_NONE)
-            rl.init_window(window_width, window_height, "WAI Snake")
+
+            if self.fullscreen:
+                # borderless windowed keeps the desktop resolution, which is
+                # far better behaved than exclusive fullscreen on macOS
+                rl.init_window(800, 600, "WAI Snake")
+                rl.toggle_borderless_windowed()
+                window_width = rl.get_screen_width()
+                window_height = rl.get_screen_height()
+                if (window_width, window_height) == (800, 600):
+                    monitor = rl.get_current_monitor()
+                    window_width = rl.get_monitor_width(monitor)
+                    window_height = rl.get_monitor_height(monitor)
+                    rl.set_window_size(window_width, window_height)
+
+                # biggest square cell that fits the board on screen
+                self.cell_size = min(
+                    (window_width - self.padding * 2) // width,
+                    (window_height - self.padding * 2) // height,
+                )
+                game_width = width * self.cell_size
+                game_height = height * self.cell_size
+                self.origin_x = (window_width - game_width) // 2
+                self.origin_y = (window_height - game_height) // 2
+            else:
+                game_width = width * self.cell_size
+                game_height = height * self.cell_size
+                window_width = game_width + (self.padding * 2)
+                window_height = game_height + (self.padding * 2)
+                self.origin_x = self.padding
+                self.origin_y = self.padding
+                rl.init_window(window_width, window_height, "WAI Snake")
+
             rl.set_target_fps(self.render_fps)
             self.window_initialized = True
             self.game_width = game_width
             self.game_height = game_height
             self.window_width = window_width
             self.window_height = window_height
+            # how much bigger than the default 40px cell everything is drawn
+            self.scale = self.cell_size / 40
 
     def push(self, state: GameState):
         """
@@ -112,6 +155,49 @@ class SnakeRenderer:
             self.restart_requested = False
             return True
         return False
+
+    def is_idle(self):
+        """True when every pushed state has been fully played back.
+
+        Interactive play uses this to step the game exactly once per
+        move_duration so the snake moves in real time.
+        """
+        return self.next_state is None and len(self.state_buffer) == 0
+
+    # keys that steer the player snake, mapped to Direction indices
+    DIRECTION_KEYS = {
+        rl.KEY_UP: 0,
+        rl.KEY_RIGHT: 1,
+        rl.KEY_DOWN: 2,
+        rl.KEY_LEFT: 3,
+        rl.KEY_W: 0,
+        rl.KEY_D: 1,
+        rl.KEY_S: 2,
+        rl.KEY_A: 3,
+    }
+
+    def poll_direction(self):
+        """Return the Direction index of an arrow/WASD key pressed this frame, else None"""
+        if not self.window_initialized:
+            return None
+        for key, direction in self.DIRECTION_KEYS.items():
+            if rl.is_key_pressed(key):
+                return direction
+        return None
+
+    def set_message(self, text, corner=False):
+        """Show (or clear with None) a message: centred, or small in the top-right corner"""
+        self.message = text
+        self.message_corner = corner
+
+    def set_speed(self, moves_per_second):
+        """Change how quickly pushed states are played back"""
+        self.moves_per_second = moves_per_second
+        self.move_duration = 1.0 / moves_per_second
+
+    def poll_space(self):
+        """True on the frame the space bar is pressed"""
+        return self.window_initialized and rl.is_key_pressed(rl.KEY_SPACE)
 
     def reset(self):
         """Clear the state buffer and reset to current state"""
@@ -190,7 +276,7 @@ class SnakeRenderer:
 
         # Light green game board
         rl.draw_rectangle(
-            self.padding, self.padding, self.game_width, self.game_height, self.BG_BOARD
+            self.origin_x, self.origin_y, self.game_width, self.game_height, self.BG_BOARD
         )
 
         # Subtle checkerboard pattern
@@ -198,8 +284,8 @@ class SnakeRenderer:
             for y in range(state.height):
                 if (x + y) % 2 == 0:
                     rl.draw_rectangle(
-                        self.padding + x * self.cell_size,
-                        self.padding + y * self.cell_size,
+                        self.origin_x + x * self.cell_size,
+                        self.origin_y + y * self.cell_size,
                         self.cell_size,
                         self.cell_size,
                         self.CHECKER_LIGHT,
@@ -207,8 +293,8 @@ class SnakeRenderer:
 
         # Walls (dark green squares)
         for x, y in state.walls:
-            wall_x = self.padding + x * self.cell_size
-            wall_y = self.padding + y * self.cell_size
+            wall_x = self.origin_x + x * self.cell_size
+            wall_y = self.origin_y + y * self.cell_size
             rl.draw_rectangle(
                 wall_x, wall_y, self.cell_size, self.cell_size, self.WALL_COLOR
             )
@@ -227,8 +313,12 @@ class SnakeRenderer:
         self._draw_ui(state)
 
         # Game over overlay
-        if not state.snake.isAlive:
+        if not state.snake.isAlive and self.show_game_over:
             self._draw_game_over(state)
+
+        # Optional message overlay (drawn last so it sits above everything)
+        if self.message:
+            self._draw_message(self.message, self.message_corner)
 
         # Buffer indicator (optional debug info)
         # buffer_text = f"Buffer: {len(self.state_buffer)}"
@@ -391,9 +481,9 @@ class SnakeRenderer:
 
     def _draw_segment_smooth(self, x, y, is_head, direction, is_tail, color):
         """Draw a snake segment at interpolated position (x, y can be floats)"""
-        size = self.cell_size - 8
-        cx = self.padding + x * self.cell_size + self.cell_size // 2
-        cy = self.padding + y * self.cell_size + self.cell_size // 2
+        size = self.cell_size - self.cell_size // 5
+        cx = self.origin_x + x * self.cell_size + self.cell_size // 2
+        cy = self.origin_y + y * self.cell_size + self.cell_size // 2
         px = int(cx - size / 2)
         py = int(cy - size / 2)
 
@@ -401,8 +491,8 @@ class SnakeRenderer:
             rl.draw_rectangle_rounded(rl.Rectangle(px, py, size, size), 0.5, 8, color)
 
             # Draw eyes based on direction (with alpha support for fading)
-            eye_size = 6
-            pupil_size = 3
+            eye_size = 6 * self.scale
+            pupil_size = 3 * self.scale
 
             # Extract alpha from color for eye colors
             alpha_val = color.a if hasattr(color, "a") else 255
@@ -434,34 +524,70 @@ class SnakeRenderer:
 
     def _draw_apple(self, x, y):
         """Draw an apple with highlight, stem, and leaf"""
-        cx = self.padding + x * self.cell_size + self.cell_size // 2
-        cy = self.padding + y * self.cell_size + self.cell_size // 2
+        cx = self.origin_x + x * self.cell_size + self.cell_size // 2
+        cy = self.origin_y + y * self.cell_size + self.cell_size // 2
         radius = self.cell_size // 3
+        k = self.scale
 
         # Main apple body
         rl.draw_circle(cx, cy, radius, self.APPLE_RED)
 
         # Highlight
-        rl.draw_circle(cx - 5, cy - 5, radius // 3, rl.Color(255, 180, 180, 255))
+        rl.draw_circle(
+            int(cx - 5 * k), int(cy - 5 * k), radius // 3, rl.Color(255, 180, 180, 255)
+        )
 
         # Stem
-        rl.draw_rectangle(cx - 1, cy - radius - 5, 3, 6, rl.Color(139, 69, 19, 255))
+        rl.draw_rectangle(
+            int(cx - 1 * k),
+            int(cy - radius - 5 * k),
+            max(3, int(3 * k)),
+            max(6, int(6 * k)),
+            rl.Color(139, 69, 19, 255),
+        )
 
         # Leaf (simple triangle)
         rl.draw_triangle(
-            rl.Vector2(float(cx + 2), float(cy - radius - 2)),
-            rl.Vector2(float(cx + 8), float(cy - radius - 4)),
-            rl.Vector2(float(cx + 6), float(cy - radius + 2)),
+            rl.Vector2(float(cx + 2 * k), float(cy - radius - 2 * k)),
+            rl.Vector2(float(cx + 8 * k), float(cy - radius - 4 * k)),
+            rl.Vector2(float(cx + 6 * k), float(cy - radius + 2 * k)),
             self.APPLE_GREEN,
         )
 
     def _draw_ui(self, state):
         """Draw UI elements (score and snake length) in Google Snake style"""
         # Apple icon and score
-        rl.draw_circle(40, 35, 12, self.APPLE_RED)
-        rl.draw_circle(37, 32, 4, rl.Color(255, 180, 180, 255))  # highlight
-        rl.draw_rectangle(38, 22, 3, 6, rl.Color(139, 69, 19, 255))  # stem
-        rl.draw_text(f"{state.snake.score}", 60, 25, 28, self.WHITE)
+        k = self.scale
+        bx, by = self.origin_x + 20, self.origin_y + 15
+        rl.draw_circle(bx, by, 12 * k, self.APPLE_RED)
+        rl.draw_circle(
+            int(bx - 3 * k), int(by - 3 * k), 4 * k, rl.Color(255, 180, 180, 255)
+        )  # highlight
+        rl.draw_rectangle(
+            int(bx - 2 * k), int(by - 13 * k), max(3, int(3 * k)), max(6, int(6 * k)),
+            rl.Color(139, 69, 19, 255),
+        )  # stem
+        rl.draw_text(
+            f"{state.snake.score}", int(bx + 20 * k), int(by - 10 * k), int(28 * k), self.WHITE
+        )
+
+    def _draw_message(self, text, corner=False):
+        """Draw a message on a translucent banner, centred or tucked top-right"""
+        font_size = int((18 if corner else 28) * self.scale)
+        pad = int((8 if corner else 16) * self.scale)
+        text_width = rl.measure_text(text, font_size)
+        box_w = text_width + pad * 2
+        box_h = font_size + pad * 2
+        if corner:
+            box_x = self.origin_x + self.game_width - box_w
+            box_y = self.origin_y
+        else:
+            box_x = (self.window_width - box_w) // 2
+            box_y = (self.window_height - box_h) // 2
+        rl.draw_rectangle_rounded(
+            rl.Rectangle(box_x, box_y, box_w, box_h), 0.3, 8, rl.Color(0, 0, 0, 160)
+        )
+        rl.draw_text(text, box_x + pad, box_y + pad, font_size, self.WHITE)
 
     def _draw_game_over(self, state):
         """Draw game over overlay"""
@@ -493,7 +619,7 @@ class SnakeRenderer:
         )
 
         # Restart hint
-        restart_text = "Press R to restart"
+        restart_text = self.game_over_hint
         restart_width = rl.measure_text(restart_text, 24)
         rl.draw_text(
             restart_text,

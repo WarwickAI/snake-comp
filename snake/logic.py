@@ -134,8 +134,9 @@ class SnakeGame:
 
         return moved
 
-    # returns true if move successful, false if game over
-    def _move_snake(self, snake: Snake, turn):
+    # returns true if the snake would survive taking this turn, without moving it
+    def is_safe_move(self, snake_idx, turn):
+        snake = self.snakes[snake_idx]
         next_head = snake.get_next_head(turn)
 
         if next_head in self.walls:
@@ -166,6 +167,15 @@ class SnakeGame:
 
         if next_head in all_other_bodies:
             return False
+
+        return True
+
+    # returns true if move successful, false if game over
+    def _move_snake(self, snake: Snake, turn):
+        if not self.is_safe_move(self.snakes.index(snake), turn):
+            return False
+
+        next_head = snake.get_next_head(turn)
 
         # checks if we're moving into an apple
         will_eat = next_head in self.food

@@ -7,6 +7,7 @@ from snake.logic import SnakeGame, GameState
 from snake.render import SnakeRenderer
 
 from snake.run import run
+from snake.play import play, ENEMY_AIS
 from snake.test import test, test_all
 
 # loads configurations
@@ -35,6 +36,23 @@ def main():
     run_parser = subparsers.add_parser("run")
     run_parser.add_argument("difficulty", nargs="?", default=DEFAULT)
     run_parser.add_argument("--seed", type=int)
+
+    # snake play [difficulty] [--enemy ai]
+    play_parser = subparsers.add_parser("play", help="play with the arrow keys")
+    play_parser.add_argument("difficulty", nargs="?", default="hard")
+    play_parser.add_argument(
+        "--enemy",
+        choices=list(ENEMY_AIS),
+        default="demo",
+        help="which AI drives the enemy snakes (default: the strongest example)",
+    )
+    play_parser.add_argument(
+        "--speed", type=float, help="moves per second (default: 5)"
+    )
+    play_parser.add_argument(
+        "--windowed", action="store_true", help="play in a window instead of fullscreen"
+    )
+    play_parser.add_argument("--seed", type=int)
 
     # snake test <n> [difficulty]
     test_parser = subparsers.add_parser("test")
@@ -80,6 +98,21 @@ def main():
 
         print("Controls: R=restart, ESC=quit")
         run(cfg=DIFFICULTIES[args.difficulty])
+
+    # user has asked to play against an AI themselves
+    elif args.command == "play":
+        if args.difficulty not in DIFFICULTIES:
+            print(f"Unknown difficulty: {args.difficulty}")
+            list_modes()
+            return
+
+        print("Controls: SPACE=play/back to demo, Arrow keys/WASD=move, R=restart, ESC=quit")
+        play(
+            cfg=DIFFICULTIES[args.difficulty],
+            enemy=args.enemy,
+            speed=args.speed,
+            fullscreen=not args.windowed,
+        )
 
     # user has asked to test their AI
     elif args.command == "test":

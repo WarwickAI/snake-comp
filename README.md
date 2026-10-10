@@ -99,6 +99,18 @@ snake run easy
 snake run hard
 ```
 
+#### 🕹️ Play against the AIs yourself
+```bash
+snake play                        # hard difficulty vs the demo AI (examples/demoAI.py)
+snake play chaos --enemy my       # enemies run your own myAI instead
+snake play --speed 8              # faster (default is 5 moves per second)
+snake play --windowed             # in a window instead of fullscreen
+```
+This opens an arcade-style demo where the strongest example AI plays itself at speed.
+Press **SPACE** to take over the blue snake with the arrow keys (or WASD). When you lose, press **R** to
+retry or **SPACE** to hand back to the AIs. The enemies can be `demo`, `my`, `smart`, `dumb`, `simulation`, `winner` or `rl`.
+If you're about to crash, the snake pauses for a moment so a late key press still saves you.
+
 #### ⚡ Run headless tests
 ```bash
 snake test 100 medium
